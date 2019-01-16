@@ -1,5 +1,6 @@
-
+import os
 from tkinter import *
+from tkinter import messagebox
 from tkcolorpicker import askcolor
 from PIL import Image, ImageOps, ImageDraw
 
@@ -8,7 +9,7 @@ def main():
 
 ##########################
 #      SEGMENT ONE       #
-#     GUI  elements      # 
+#     GUI  elements      #
 ##########################
 
 def prompt():
@@ -27,8 +28,8 @@ def prompt():
 
     # First, we'll add all the labels and text inputs.
     # We'll access them in order from a global entries list.
-    entries.append(make_text_input(root, "Image folder: "))
-    entries.append(make_text_input(root, "Output folder: "))
+    entries.append(make_text_input(root, "Image folder: ","pics"))
+    entries.append(make_text_input(root, "Output folder: ", "out"))
     entries.append(make_text_input(root, "Stamp location: ", "default"))
     entries.append(make_text_input(root, "Stamp offset %: ", "0.1"))
     entries.append(make_text_input(root, "Frame width %: ", "0.1"))
@@ -44,7 +45,7 @@ def prompt():
     preview_btn = Button(root, text='Show preview', command=show_preview)
     preview_btn.pack(side=TOP, padx=5, pady=5)
 
-    save_btn = Button(root, text='Process all images')
+    save_btn = Button(root, text='Process all images', command=process_all)
     save_btn.pack(side=BOTTOM, padx=5, pady=5)
 
     # Show the GUI.
@@ -86,20 +87,26 @@ def choose_overlay_color():
     print(overlay_color)
 
 def show_preview():
-    doctor()
+    preview_file = os.listdir(entries[0].get())[0]
+    doctor(entries[0].get() + "/" + preview_file)
+
+def process_all():
+    for file in os.listdir(entries[0].get()):
+        doctor(entries[0].get() + "/" + file, True)
+    messagebox.showinfo("Success", "Your images have been processed and written to output directory \"" + entries[1].get() + "\".")
 
 ##########################
 #      SEGMENT TWO       #
 #     Image  editing     # 
 ##########################
 
-def doctor():
+def doctor(image_file, save=False):
     global entries
     global frame_color
     global overlay_color
 
     # Open the image and give it an alpha channel for editing transparency
-    image = Image.open(entries[0].get())
+    image = Image.open(image_file)
     image = image.convert('RGBA')
 
     # Perform all our steps
@@ -107,8 +114,11 @@ def doctor():
     image = frame(image, frame_color, float(entries[4].get()))
     image = stamp(image, entries[2].get(), float(entries[3].get()))
 
-    # Show the image (save it eventually)
-    image.show()
+    # Show the image or save it if we say to
+    if save:
+        image.save(entries[1].get() + "/out-" + os.path.basename(image_file))
+    else:
+        image.show()
 
 def frame(image, color, percent):
     """
@@ -165,7 +175,7 @@ def stamp(image, stamp, offsetPercent):
 
     # Use the default stamp if none is specified
     if(stamp == "default"):
-        stamp = Image.open('pics/stamp.jpg')
+        stamp = Image.open('stamps/stamp.jpg')
     else:
         stamp = Image.open(stamp)
 
