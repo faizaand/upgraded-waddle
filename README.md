@@ -16,6 +16,7 @@ The client enjoys participating in the creative process and will appreciate bein
 - [x] Apply a logo to each image, and the client can choose the logo they want.
 - [ ] Save all the modifications to the directory.
 - [x] Fancy GUI for the parameter selection.
+- [ ] Add labels for title and instructions.
 
 ## Installation
 The installation and running process is straightforward:
